@@ -112,30 +112,91 @@ STRTOFILE(excinfo,m_rpfilename ,1)
 **********************执行报告输出文件END*******************
 
 
-**********************执行创建相关目录*********************
+
+
+**********************执行读取配置信息**********************
 Dimension  m_mkdir(MAXARRAYLEN)
+Dimension  m_cpydir(MAXARRAYLEN)
+DIMENSION m_worksheet(10)
+DIMENSION m_procfile(MAXARRAYLEN)
+PUBLIC cnt as Integer
 
 IF FILE(CFGDB)
 	SELECT * from CFGDB INTO  ARRAY m_mkdir WHERE flags = 1
 ELSE
 
 ENDIF 
-
-lens = ALEN(m_mkdir)/DBCOLMNNU
-
+dirlens = ALEN(m_mkdir)/DBCOLMNNU
 ?PrgDebug("创建目录",m_mkdir, 1)
 IF DEDUG = 1
 		DISPLAY MEMORY LIKE m_mkdir
 ENDIF 
 
-?PrgDebug("目录个数",lens , 1)
+?PrgDebug("目录个数",dirlens, 1)
 
+
+IF FILE(CFGDB)
+	SELECT * from CFGDB INTO  ARRAY m_cpydir WHERE flags = 2
+ELSE
+
+ENDIF 
+
+?PrgDebug("需拷贝的目录",m_cpydir, 1)
+IF DEDUG = 1
+		DISPLAY MEMORY LIKE m_cpydir
+ENDIF 
+
+
+cpylen = ALEN(m_cpydir)/DBCOLMNNU
+*SET DEFAULT TO c:\
+
+?PrgDebug("需拷贝目录个数",cpylen , 1)
+
+cnt = 0
+m_worksheet(1) = 1
+m_worksheet(2) = 2
+m_worksheet(3) = 3
+m_worksheet(4) = 4
+m_worksheet(5) = 5
+m_worksheet(6) = 6
+m_worksheet(7) = 7
+m_worksheet(8) = 8
+m_worksheet(9) = 9
+m_worksheet(10) = 10
+
+?PrgDebug("工作区域数组",m_worksheet, 1)
+IF DEDUG = 1
+	DISPLAY MEMORY LIKE m_worksheet
+ENDIF 
+
+
+IF FILE(CFGDB)
+	SELECT * from CFGDB INTO  ARRAY m_procfile WHERE flags = 3
+ELSE
+
+ENDIF 
+
+proclen = ALEN(m_procfile) / DBCOLMNNU
+
+?PrgDebug("工作计数",cnt, 1)
+?PrgDebug("筛选处理",m_procfile, 1)
+IF DEDUG = 1
+	DISPLAY MEMORY LIKE m_procfile
+ENDIF 
+?PrgDebug("筛选处理个数",proclen, 1)
+
+
+**********************执行读取配置信息END*******************
+
+
+
+**********************执行创建相关目录*********************
 PUBLIC kfile  as Character
 
 *SET DEFAULT TO "d:\qssj"
 
-FOR i = 1 TO lens  IN m_mkdir
-	*IF FILE(m_aArray2(i,8))
+FOR i = 1 TO dirlens IN m_mkdir
+	*IF FILE(m_procfile(i,8))
    	   kfile = m_mkdir(i,COL_FILESRC)+'\'+ m_date
    	   X=Adir(m_atrr,kfile ,'D') 
    	   ?PrgDebug("需创建的目录",kfile , 1)
@@ -161,32 +222,12 @@ ENDFOR
 
 
 *!xcopy d:\show2003\show2003.dbf  c:\zrxt\&m_date /y
-**********************执行创建相关目录*********************
 
 
 **********************执行拷贝相关文件*********************
-SET DEFAULT TO DEFALUTPATH
-Dimension  m_cpydir(MAXARRAYLEN)
-
-IF FILE(CFGDB)
-	SELECT * from CFGDB INTO  ARRAY m_cpydir WHERE flags = 2
-ELSE
-
-ENDIF 
-
-?PrgDebug("需拷贝的目录",m_cpydir, 1)
-IF DEDUG = 1
-		DISPLAY MEMORY LIKE m_cpydir
-ENDIF 
-
-
-len2 = ALEN(m_cpydir)/DBCOLMNNU
-*SET DEFAULT TO c:\
-
-?PrgDebug("需拷贝目录个数",len2 , 1)
-
-FOR i = 1 TO len2 IN m_cpydir
-	*IF FILE(m_aArray2(i,8))
+*SET DEFAULT TO DEFALUTPATH
+FOR i = 1 TO cpylen IN m_cpydir
+	*IF FILE(m_procfile(i,8))
 	cfile = m_cpydir(i,COL_FILESRC)+'\'+ m_cpydir(i,COL_DFILENAME)
 	dfile = m_cpydir(i,COL_CPYDES)+'\'+m_date+'\'+m_cpydir(i,COL_DFILENAME)
 	 
@@ -222,69 +263,32 @@ ENDFOR
 
 
 **********************执行数据筛选*********************
-DIMENSION m_aArray(10)
-DIMENSION m_aArray2(MAXARRAYLEN)
-PUBLIC cnt as Integer
-cnt = 0
-m_aArray(1) = 1
-m_aArray(2) = 2
-m_aArray(3) = 3
-m_aArray(4) = 4
-m_aArray(5) = 5
-m_aArray(6) = 6
-m_aArray(7) = 7
-m_aArray(8) = 8
-m_aArray(9) = 9
-m_aArray(10) = 10
 
-?PrgDebug("工作区域数组",m_aArray, 1)
-IF DEDUG = 1
-	DISPLAY MEMORY LIKE m_aArray
-ENDIF 
-
-
-IF FILE(CFGDB)
-	SELECT * from CFGDB INTO  ARRAY m_aArray2 WHERE flags = 3
-ELSE
-
-ENDIF 
-
-PUBLIC SZ as Integer
-
-SZ = ALEN(m_aArray2) / DBCOLMNNU
-
-?PrgDebug("工作计数",cnt, 1)
-?PrgDebug("筛选处理",m_aArray2, 1)
-IF DEDUG = 1
-	DISPLAY MEMORY LIKE m_aArray2
-ENDIF 
-?PrgDebug("筛选处理个数",SZ, 1)
 
 *SET DEFAULT to d:\qssj
 
 PUBLIC fname as Character
 PUBLIC cFileName  as Character
 
-FOR i = 1 TO SZ IN m_aArray2
-    fname = m_aArray2(i,COL_SPRENAME)+ YYYYMMDD +'.dbf'
-    cFileName =m_aArray2(i,COL_DPRENAME) + '\' +  mmdd +m_aArray2(i,COL_DFILENAME) 
+FOR i = 1 TO proclen IN m_procfile
+    fname = m_procfile(i,COL_SPRENAME)+ YYYYMMDD +'.dbf'
+    cFileName =m_procfile(i,COL_DPRENAME) + '\' +  mmdd +m_procfile(i,COL_DFILENAME) 
     ?PrgDebug("筛选处理文件名",fname, 1)
     ?PrgDebug("筛选工作件拷贝路径",cFileName, 1)
 	IF FILE(fname)
    	    IF NOT USED(fname)   
         	cnt = cnt + 1
-       	    use &fname IN m_aArray(cnt)
+       	    use &fname IN m_worksheet(cnt)
        	    ?PrgDebug("筛选工作计数",cnt, 1)
-       	    ?PrgDebug("筛选工作区域",m_aArray(cnt), 1)
+       	    ?PrgDebug("筛选工作区域",m_worksheet(cnt), 1)
        	    ?PrgDebug("打开使用数据文件",fname, 1)
-       	    
        	    
        	    STRTOFILE('打开使用文件'+fname,m_rpfilename ,1)
        	 ELSE
        	 	?PrgDebug("正在使用",fname, 1)
        	 	STRTOFILE('正在使用文件'+fname ,m_rpfilename ,1)
        	 ENDIF 
-			COPY TO &cFileName for gg = m_aArray2(i,COL_SCONDITION)
+			COPY TO &cFileName for gg = m_procfile(i,COL_SCONDITION)
 			
 			procefileinfo = '文件'+ STR(i,1,5) + ' 从源目录：' + fname + ' 抽取数据到目标目录：' + cFileName +  '  成功' + NEWLINE
 			STRTOFILE(procefileinfo ,m_rpfilename ,1)
