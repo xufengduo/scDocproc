@@ -19,9 +19,9 @@
 #define       MMDD           SUBSTR(DTOC(DATE()),1,2) + SUBSTR(DTOC(DATE()),4,2)
 #define       YYYYMMDD       "20" + SUBSTR(DTOC(DATE()),7,2) + SUBSTR(DTOC(DATE()),1,2) + SUBSTR(DTOC(DATE()),4,2)
 
-#define       PRGNAME        '报告文件:'
-#define       PRGDIR         '程序目录:'
-#define       EXCTIME        '执行时间:'
+#define       PRGNAME        '******报告文件******:'
+#define       PRGDIR         '[程序目录]:'
+#define       EXCTIME        '[执行时间]:'
 #define       CFGNOTEXIT     '配置文件不存在'
 #define       CFGINFO        '读取配置数据信息..............'
 #define       MAXARRAYLEN    100
@@ -195,28 +195,36 @@ PUBLIC kfile  as Character
 
 *SET DEFAULT TO "d:\qssj"
 
+STRTOFILE(NEWLINE ,m_rpfilename,1)
+STRTOFILE(SPACE(2)+"////////////////////////****************开始创建目录******************///////////////////////"+NEWLINE ,m_rpfilename,1)
+
 FOR i = 1 TO dirlens IN m_mkdir
 	*IF FILE(m_procfile(i,8))
    	   kfile = m_mkdir(i,COL_FILESRC)+'\'+ m_date
    	   X=Adir(m_atrr,kfile ,'D') 
+   	   
+   	   DISPLAY MEMORY LIKE dirattr 
    	   ?PrgDebug("需创建的目录",kfile , 1)
    	   ?PrgDebug("是否存在？ 1表示不存在 0表示存在",X , 1)
        IF X=0 
 	      md &kfile 
-	      mdirinfo = '目录'+ STR(i,1,5) + ' 路径：' + kfile +  '  创建成功' + NEWLINE
+	      mdirinfo = SPACE(4)+'目录名'+ STR(i,1,5) + ' '+m_date + ' 路径：' + kfile +  '  创建成功' + NEWLINE
 	      
 	      STRTOFILE(mdirinfo ,m_rpfilename,1)
 	      IF CTROLWIN = 1
 	      	@i ,10 say mdirinfo 
 	      ENDIF 
 	    ELSE
-	    	mdirinfoerr = '目录'+ STR(i,1,5) + ' 路径：' + kfile +  '  创建失败，目录' + m_date + '已存在' + NEWLINE
+	    	mdirinfoerr = SPACE(4)+'目录'+ STR(i,1,5) + ' ' + m_date +' 路径：' + kfile +  '  创建失败，目录' + m_date + '已存在' + NEWLINE
 	   		STRTOFILE(mdirinfoerr ,m_rpfilename,1)
 	    	IF CTROLWIN = 1
 	      		@i ,10 say mdirinfoerr 
 	      	ENDIF 
 	  ENDIF 
 ENDFOR 
+STRTOFILE(NEWLINE ,m_rpfilename,1)
+STRTOFILE(SPACE(2)+"////////////////////////****************创建目录结束******************////////////////////////"+NEWLINE ,m_rpfilename,1)
+
 *md c:\zxxt\&m_date
 **********************执行创建相关目录END*******************
 
@@ -226,6 +234,10 @@ ENDFOR
 
 **********************执行拷贝相关文件*********************
 *SET DEFAULT TO DEFALUTPATH
+
+STRTOFILE(NEWLINE ,m_rpfilename,1)
+STRTOFILE(SPACE(2)+"////////////////////////****************开始执行拷贝文件******************////////////////////////"+NEWLINE ,m_rpfilename,1)
+
 FOR i = 1 TO cpylen IN m_cpydir
 	*IF FILE(m_procfile(i,8))
 	cfile = m_cpydir(i,COL_FILESRC)+'\'+ m_cpydir(i,COL_DFILENAME)
@@ -240,19 +252,21 @@ FOR i = 1 TO cpylen IN m_cpydir
 	     	COPY FILE  &cfile TO &dfile 
 	    	?PrgDebug("拷贝源目录",cfile , 1)
     		?PrgDebug("拷贝目标目录",dfile , 1)
-    		copyfileinfo = '文件'+ STR(i,1,5) + ' 从源目录：' + cfile + ' 拷贝到目标目录：' + dfile +  '  成功' + NEWLINE
+    		copyfileinfo = SPACE(4)+'文件'+ STR(i,1,5) +' '+ m_cpydir(i,COL_DFILENAME) + ' 从源目录：' + cfile + ' 拷贝到目标目录：' + dfile +  '  成功' + NEWLINE
     		STRTOFILE(copyfileinfo ,m_rpfilename,1)
     		IF CTROLWIN = 1
     	    	@i + 20,10 say copyfileinfo 
     		ENDIF 
     	 ELSE
-    	 	copyfileinfoerr = '文件'+ STR(i,1,5) + ' 从源目录：' + cfile + ' 拷贝到目标目录：' + dfile +  '  失败，文件' + cfile + '不存在' + NEWLINE
+    	 	copyfileinfoerr = SPACE(4)+'文件'+ STR(i,1,5) + ' '+m_cpydir(i,COL_DFILENAME) + ' 从源目录：' + cfile + ' 拷贝到目标目录：' + dfile +  '  失败，文件' + cfile + '不存在' + NEWLINE
     	 	STRTOFILE(copyfileinfoerr ,m_rpfilename,1)
     	 	IF CTROLWIN = 1
     	 		@i + 20,10 say copyfileinfoerr 
     	 	ENDIF 
 	     ENDIF 
 ENDFOR 
+STRTOFILE(NEWLINE ,m_rpfilename,1)
+STRTOFILE(SPACE(2)+"////////////////////////****************执行拷贝文件结束******************////////////////////////"+NEWLINE ,m_rpfilename,1)
 
 *cFileName ="d:\qssj\zqjsxx." +mdd
 **DISPLAY MEMORY LIKE cFileName
@@ -269,6 +283,9 @@ ENDFOR
 
 PUBLIC fname as Character
 PUBLIC cFileName  as Character
+
+STRTOFILE(NEWLINE ,m_rpfilename,1)
+STRTOFILE(SPACE(2)+"////////////////////////****************开始执行数据筛选******************////////////////////////"+NEWLINE ,m_rpfilename,1)
 
 FOR i = 1 TO proclen IN m_procfile
     fname = m_procfile(i,COL_SPRENAME)+ YYYYMMDD +'.dbf'
@@ -291,13 +308,13 @@ FOR i = 1 TO proclen IN m_procfile
        	 ENDIF 
 			COPY TO &cFileName for gg = m_procfile(i,COL_SCONDITION)
 			
-			procefileinfo = '文件'+ STR(i,1,5) + ' 从源目录：' + fname + ' 抽取数据到目标目录：' + cFileName +  '  成功' + NEWLINE
+			procefileinfo = SPACE(4)+'文件'+ STR(i,1,5) +' ' +mmdd +m_procfile(i,COL_DFILENAME)+ ' 从源目录：' + fname + ' 抽取数据到目标目录：' + cFileName +  '  成功' + NEWLINE
 			STRTOFILE(procefileinfo ,m_rpfilename ,1)
 			IF CTROLWIN = 1
 				@i+40,10 say procefileinfo 
 			ENDIF 
 	ELSE
-			proceinfoerr = '文件'+ STR(i,1,5) + ' 从源目录：' + fname + ' 抽取数据到目标目录：' + cFileName + '  失败，源文件不存在' + NEWLINE
+			proceinfoerr = SPACE(4)+'文件'+ STR(i,1,5) + ' '+mmdd +m_procfile(i,COL_DFILENAME) +' 从源目录：' + fname + ' 抽取数据到目标目录：' + cFileName + '  失败，源文件不存在' + NEWLINE
 			STRTOFILE(proceinfoerr ,m_rpfilename ,1)
 	    	IF CTROLWIN = 1
 				@i+40,10 say proceinfoerr 
@@ -306,7 +323,8 @@ FOR i = 1 TO proclen IN m_procfile
 	CLOSE TABLES
 ENDFOR 
 CLOSE TABLES
-
+STRTOFILE(NEWLINE ,m_rpfilename,1)
+STRTOFILE(SPACE(2)+"////////////////////////****************执行数据筛选结束******************////////////////////////"+NEWLINE ,m_rpfilename,1)
 **********************执行数据筛选END*********************
 
 *打开调试模式
