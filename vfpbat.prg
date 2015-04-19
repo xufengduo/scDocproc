@@ -99,7 +99,7 @@ m_rpname = m_date + '.txt'
 m_rpfilename = sys(5)+sys(2003)+'\' + m_rpname
 m_spaces = '        '
 
-excinfo= PRGDIR + m_spaces + sys(5)+sys(2003)+'\' + m_spaces + m_spaces + m_spaces + EXCTIME + m_spaces + DTOC(DATE()) + NEWLINE 
+excinfo= PRGDIR + m_spaces + sys(5)+sys(2003)+'\' + m_spaces + m_spaces + m_spaces + EXCTIME + m_spaces + DTOC(DATE()) +' '+ TIME() + NEWLINE 
 reportfile = NEWLINE + PRGNAME + m_spaces +m_rpname + NEWLINE
 
 ?PrgDebug("文件名称",m_rpname, 1)
@@ -124,7 +124,7 @@ PUBLIC cnt as Integer
 IF FILE(CFGDB)
 	SELECT * from CFGDB INTO  ARRAY m_mkdir WHERE flags = 1
 ELSE
-
+	STRTOFILE("创建目录配置文件不存在" + NEWLINE ,m_rpfilename ,1)
 ENDIF 
 dirlens = ALEN(m_mkdir)/DBCOLMNNU
 ?PrgDebug("创建目录",m_mkdir, 1)
@@ -138,7 +138,7 @@ ENDIF
 IF FILE(CFGDB)
 	SELECT * from CFGDB INTO  ARRAY m_cpydir WHERE flags = 2
 ELSE
-
+	STRTOFILE("拷贝目录配置文件不存在" + NEWLINE ,m_rpfilename ,1)
 ENDIF 
 
 ?PrgDebug("需拷贝的目录",m_cpydir, 1)
@@ -173,7 +173,7 @@ ENDIF
 IF FILE(CFGDB)
 	SELECT * from CFGDB INTO  ARRAY m_procfile WHERE flags = 3
 ELSE
-
+	STRTOFILE("筛选处理目录配置文件不存在" + NEWLINE ,m_rpfilename ,1)
 ENDIF 
 
 proclen = ALEN(m_procfile) / DBCOLMNNU
@@ -279,11 +279,12 @@ FOR i = 1 TO proclen IN m_procfile
    	    IF NOT USED(fname)   
         	cnt = cnt + 1
        	    use &fname IN m_worksheet(cnt)
+       	    SELECT m_worksheet(cnt)
        	    ?PrgDebug("筛选工作计数",cnt, 1)
        	    ?PrgDebug("筛选工作区域",m_worksheet(cnt), 1)
        	    ?PrgDebug("打开使用数据文件",fname, 1)
-       	    
-       	    STRTOFILE('打开使用文件'+fname,m_rpfilename ,1)
+       	    openinfo = '打开使用文件'+fname + NEWLINE
+       	    STRTOFILE(openinfo ,m_rpfilename ,1)
        	 ELSE
        	 	?PrgDebug("正在使用",fname, 1)
        	 	STRTOFILE('正在使用文件'+fname ,m_rpfilename ,1)
@@ -302,7 +303,7 @@ FOR i = 1 TO proclen IN m_procfile
 				@i+40,10 say proceinfoerr 
 			ENDIF 
 	ENDIF 
-	
+	CLOSE TABLES
 ENDFOR 
 CLOSE TABLES
 
