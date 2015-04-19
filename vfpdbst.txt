@@ -1,0 +1,51 @@
+remove table mycfgdb1;
+
+create table mycfgdb1
+(
+           smarkname Varchar(38),
+           sprename Varchar(20),
+           scondition Varchar(20),
+           dfilepath Varchar(20),
+           dprename Varchar(20),
+           dfilename Varchar(20),
+           filesrc Varchar(20),
+           cpydes Varchar(20),
+           flags Integer(4),
+           mark Varchar(20)
+);
+
+insert into mycfgdb1(smarkname,sprename,scondition,dfilepath,dprename,dfilename,filesrc,cpydes,flags,mark) 
+        values(null,null,null,null,null,null,"d:\qssj\zrxt",null,1,"建目录");
+insert into mycfgdb1(smarkname,sprename,scondition,dfilepath,dprename,dfilename,filesrc,cpydes,flags,mark) 
+        values(null,null,null,null,null,null,"d:\qssj\zxxt",null,1,"建目录");
+insert into mycfgdb1(smarkname,sprename,scondition,dfilepath,dprename,dfilename,filesrc,cpydes,flags,mark) 
+        values(null,null,null,null,null,null,"d:\qssj\zb6",null,1,"建目录");
+insert into mycfgdb1(smarkname,sprename,scondition,dfilepath,dprename,dfilename,filesrc,cpydes,flags,mark) 
+        values(null,null,null,null,null,null,"d:\qssj\hrxt",null,1,"建目录");
+insert into mycfgdb1(smarkname,sprename,scondition,dfilepath,dprename,dfilename,filesrc,cpydes,flags,mark) 
+        values(null,null,null,null,null,null,"d:\qssj\ynxt",null,1,"建目录");
+insert into mycfgdb1(smarkname,sprename,scondition,dfilepath,dprename,dfilename,filesrc,cpydes,flags,mark) 
+        values(null,null,null,null,null,null,"d:\qssj\xyxt",null,1,"建目录");
+insert into mycfgdb1(smarkname,sprename,scondition,dfilepath,dprename,dfilename,filesrc,cpydes,flags,mark) 
+        values(null,null,null,null,null,null,"d:\qssj\hqc",null,1,"建目录");
+        
+insert into mycfgdb1(smarkname,sprename,scondition,dfilepath,dprename,dfilename,filesrc,cpydes,flags,mark) 
+        values(null,null,null,null,null,"AA.dbf","c:\AA","d:\qssj\zrxt",2,"拷贝文件");
+insert into mycfgdb1(smarkname,sprename,scondition,dfilepath,dprename,dfilename,filesrc,cpydes,flags,mark) 
+        values(null,null,null,null,null,"BB.dbf","c:\BB","d:\qssj\zxxt",2,"拷贝文件");
+insert into mycfgdb1(smarkname,sprename,scondition,dfilepath,dprename,dfilename,filesrc,cpydes,flags,mark) 
+        values(null,null,null,null,null,"CC.dbf","c:\CC","d:\qssj\zb6",2,"拷贝文件");
+insert into mycfgdb1(smarkname,sprename,scondition,dfilepath,dprename,dfilename,filesrc,cpydes,flags,mark) 
+        values(null,null,null,null,null,"DD.dbf","c:\DD","d:\qssj\hrxt",2,"拷贝文件");
+insert into mycfgdb1(smarkname,sprename,scondition,dfilepath,dprename,dfilename,filesrc,cpydes,flags,mark) 
+        values(null,null,null,null,null,"EE.dbf","c:\EE","d:\qssj\ynxt",2,"拷贝文件");
+insert into mycfgdb1(smarkname,sprename,scondition,dfilepath,dprename,dfilename,filesrc,cpydes,flags,mark) 
+        values(null,null,null,null,null,"FF.dbf","c:\FF","d:\qssj\xyxt",2,"拷贝文件");
+insert into mycfgdb1(smarkname,sprename,scondition,dfilepath,dprename,dfilename,filesrc,cpydes,flags,mark) 
+        values(null,null,null,null,null,"GG.dbf","c:\GG","d:\qssj\hqc",2,"拷贝文件");
+        
+        
+insert into mycfgdb1(smarkname,sprename,scondition,dfilepath,dprename,dfilename,filesrc,cpydes,flags,mark) 
+        values("SJSHB","d:\qssj\sjshb",'HB',"e:\sjshb","e:\sjshb\sjshb","sjshb.dbf",null,null,3,"筛选记录");
+insert into mycfgdb1(smarkname,sprename,scondition,dfilepath,dprename,dfilename,filesrc,cpydes,flags,mark) 
+        values("SJSHB","d:\qssj\sjshbh",'df',"e:\sjshb","e:\sjshb\sjshb","sjshba.dbf",null,null,3,"筛选记录");

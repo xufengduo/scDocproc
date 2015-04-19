@@ -11,7 +11,7 @@
 *打开执行报告模式
 #define       REPORTMODE     1 
 *设置配置文件路径
-#define       CFGDB          "c:\Users\eland\Desktop\mycfgdb1.dbf"
+#define       CFGDB          "c:\Users\eland\Desktop\scDocproc\mycfgdb1.dbf"
 *设置执行默认路径
 #define       DEFALUTPATH    "c:\Users\eland\Desktop"
 #define       NEWLINE        CHR(13) + CHR(10)
