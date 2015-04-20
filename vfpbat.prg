@@ -121,8 +121,12 @@ DIMENSION m_worksheet(10)
 DIMENSION m_procfile(MAXARRAYLEN)
 PUBLIC cnt as Integer
 
+
+DIMENSION m_mkdirlen(1) 
+
 IF FILE(CFGDB)
 	SELECT * from CFGDB INTO  ARRAY m_mkdir WHERE flags = 1
+	SELECT * from CFGDB INTO  ARRAY m_mkdirlen WHERE flags = 1
 ELSE
 	STRTOFILE("创建目录配置文件不存在" + NEWLINE ,m_rpfilename ,1)
 ENDIF 
@@ -134,9 +138,11 @@ ENDIF
 
 ?PrgDebug("目录个数",dirlens, 1)
 
+DIMENSION dircpylen(1)
 
 IF FILE(CFGDB)
 	SELECT * from CFGDB INTO  ARRAY m_cpydir WHERE flags = 2
+	SELECT COUNT(*) from CFGDB INTO  ARRAY dircpylen WHERE flags = 2
 ELSE
 	STRTOFILE("拷贝目录配置文件不存在" + NEWLINE ,m_rpfilename ,1)
 ENDIF 
@@ -169,9 +175,11 @@ IF DEDUG = 1
 	DISPLAY MEMORY LIKE m_worksheet
 ENDIF 
 
+DIMENSION m_procfilelen(1)
 
 IF FILE(CFGDB)
 	SELECT * from CFGDB INTO  ARRAY m_procfile WHERE flags = 3
+	SELECT COUNT(*) from CFGDB INTO  ARRAY m_procfilelen WHERE flags = 3 
 ELSE
 	STRTOFILE("筛选处理目录配置文件不存在" + NEWLINE ,m_rpfilename ,1)
 ENDIF 
@@ -184,7 +192,7 @@ IF DEDUG = 1
 	DISPLAY MEMORY LIKE m_procfile
 ENDIF 
 ?PrgDebug("筛选处理个数",proclen, 1)
-
+CLOSE TABLES
 
 **********************执行读取配置信息END*******************
 
@@ -195,10 +203,13 @@ PUBLIC kfile  as Character
 
 *SET DEFAULT TO "d:\qssj"
 
-STRTOFILE(NEWLINE ,m_rpfilename,1)
-STRTOFILE(SPACE(2)+"////////////////////////****************开始创建目录******************///////////////////////"+NEWLINE ,m_rpfilename,1)
+IF m_mkdirlen(1) = 0
 
-FOR i = 1 TO dirlens IN m_mkdir
+ELSE 
+	STRTOFILE(NEWLINE ,m_rpfilename,1)
+	STRTOFILE(SPACE(2)+"////////////////////////****************开始创建目录******************///////////////////////"+NEWLINE ,m_rpfilename,1)
+
+	FOR i = 1 TO dirlens IN m_mkdir
 	*IF FILE(m_procfile(i,8))
    	   kfile = m_mkdir(i,COL_FILESRC)+'\'+ m_date
    	   X=Adir(m_atrr,kfile ,'D') 
@@ -221,10 +232,10 @@ FOR i = 1 TO dirlens IN m_mkdir
 	      		@i ,10 say mdirinfoerr 
 	      	ENDIF 
 	  ENDIF 
-ENDFOR 
-STRTOFILE(NEWLINE ,m_rpfilename,1)
-STRTOFILE(SPACE(2)+"////////////////////////****************创建目录结束******************////////////////////////"+NEWLINE ,m_rpfilename,1)
-
+	ENDFOR 
+	STRTOFILE(NEWLINE ,m_rpfilename,1)
+	STRTOFILE(SPACE(2)+"////////////////////////****************创建目录结束******************////////////////////////"+NEWLINE ,m_rpfilename,1)
+ENDIF 
 *md c:\zxxt\&m_date
 **********************执行创建相关目录END*******************
 
@@ -235,17 +246,21 @@ STRTOFILE(SPACE(2)+"////////////////////////****************创建目录结束********
 **********************执行拷贝相关文件*********************
 *SET DEFAULT TO DEFALUTPATH
 
-STRTOFILE(NEWLINE ,m_rpfilename,1)
-STRTOFILE(SPACE(2)+"////////////////////////****************开始执行拷贝文件******************////////////////////////"+NEWLINE ,m_rpfilename,1)
 
-FOR i = 1 TO cpylen IN m_cpydir
-	*IF FILE(m_procfile(i,8))
-	cfile = m_cpydir(i,COL_FILESRC)+'\'+ m_cpydir(i,COL_DFILENAME)
-	dfile = m_cpydir(i,COL_CPYDES)+'\'+m_date+'\'+m_cpydir(i,COL_DFILENAME)
+IF dircpylen(1) = 0
+
+ELSE 
+	STRTOFILE(NEWLINE ,m_rpfilename,1)
+	STRTOFILE(SPACE(2)+"////////////////////////****************开始执行拷贝文件******************////////////////////////"+NEWLINE ,m_rpfilename,1)
+
+	FOR i = 1 TO cpylen IN m_cpydir
+		*IF FILE(m_procfile(i,8))
+		cfile = m_cpydir(i,COL_FILESRC)+'\'+ m_cpydir(i,COL_DFILENAME)
+		dfile = m_cpydir(i,COL_CPYDES)+'\'+m_date+'\'+m_cpydir(i,COL_DFILENAME)
 	 
-    ?PrgDebug("源目录",cfile , 1)
-    ?PrgDebug("目标目录",dfile , 1)
-       	 IF FILE(cfile)
+    	?PrgDebug("源目录",cfile , 1)
+    	?PrgDebug("目标目录",dfile , 1)
+       	IF FILE(cfile)
 	     	*!XCOPY FILE  &cfile TO &dfile /y
 	     *ELSE
 	     *COPY TO &dfile
@@ -264,10 +279,10 @@ FOR i = 1 TO cpylen IN m_cpydir
     	 		@i + 20,10 say copyfileinfoerr 
     	 	ENDIF 
 	     ENDIF 
-ENDFOR 
-STRTOFILE(NEWLINE ,m_rpfilename,1)
-STRTOFILE(SPACE(2)+"////////////////////////****************执行拷贝文件结束******************////////////////////////"+NEWLINE ,m_rpfilename,1)
-
+	ENDFOR 
+	STRTOFILE(NEWLINE ,m_rpfilename,1)
+	STRTOFILE(SPACE(2)+"////////////////////////****************执行拷贝文件结束******************////////////////////////"+NEWLINE ,m_rpfilename,1)
+ENDIF 
 *cFileName ="d:\qssj\zqjsxx." +mdd
 **DISPLAY MEMORY LIKE cFileName
 *!xcopy &cFileName c:\zrxt\&m_date\zqjsxx.dbf /y
@@ -284,28 +299,31 @@ STRTOFILE(SPACE(2)+"////////////////////////****************执行拷贝文件结束****
 PUBLIC fname as Character
 PUBLIC cFileName  as Character
 
-STRTOFILE(NEWLINE ,m_rpfilename,1)
-STRTOFILE(SPACE(2)+"////////////////////////****************开始执行数据筛选******************////////////////////////"+NEWLINE ,m_rpfilename,1)
+IF m_procfilelen(1) = 0
 
-FOR i = 1 TO proclen IN m_procfile
-    fname = m_procfile(i,COL_SPRENAME)+ YYYYMMDD +'.dbf'
-    cFileName =m_procfile(i,COL_DPRENAME) + '\' +  mmdd +m_procfile(i,COL_DFILENAME) 
-    ?PrgDebug("筛选处理文件名",fname, 1)
-    ?PrgDebug("筛选工作件拷贝路径",cFileName, 1)
-	IF FILE(fname)
-   	    IF NOT USED(fname)   
-        	cnt = cnt + 1
-       	    use &fname IN m_worksheet(cnt)
-       	    SELECT m_worksheet(cnt)
-       	    ?PrgDebug("筛选工作计数",cnt, 1)
-       	    ?PrgDebug("筛选工作区域",m_worksheet(cnt), 1)
-       	    ?PrgDebug("打开使用数据文件",fname, 1)
-       	    openinfo = '打开使用文件'+fname + NEWLINE
-       	    STRTOFILE(openinfo ,m_rpfilename ,1)
-       	 ELSE
-       	 	?PrgDebug("正在使用",fname, 1)
-       	 	STRTOFILE('正在使用文件'+fname ,m_rpfilename ,1)
-       	 ENDIF 
+ELSE 
+	STRTOFILE(NEWLINE ,m_rpfilename,1)
+	STRTOFILE(SPACE(2)+"////////////////////////****************开始执行数据筛选******************////////////////////////"+NEWLINE ,m_rpfilename,1)
+
+	FOR i = 1 TO proclen IN m_procfile
+    	fname = m_procfile(i,COL_SPRENAME)+ YYYYMMDD +'.dbf'
+    	cFileName =m_procfile(i,COL_DPRENAME) + '\' +  mmdd +m_procfile(i,COL_DFILENAME) 
+    	?PrgDebug("筛选处理文件名",fname, 1)
+    	?PrgDebug("筛选工作件拷贝路径",cFileName, 1)
+		IF FILE(fname)
+   	    	IF NOT USED(fname)   
+        		cnt = cnt + 1
+       	    	use &fname IN m_worksheet(cnt)
+       	    	SELECT m_worksheet(cnt)
+       	    	?PrgDebug("筛选工作计数",cnt, 1)
+       	    	?PrgDebug("筛选工作区域",m_worksheet(cnt), 1)
+       	    	?PrgDebug("打开使用数据文件",fname, 1)
+       	    	openinfo = '打开使用文件'+fname + NEWLINE
+       	    	STRTOFILE(openinfo ,m_rpfilename ,1)
+       	 	ELSE
+       	 		?PrgDebug("正在使用",fname, 1)
+       	 		STRTOFILE('正在使用文件'+fname ,m_rpfilename ,1)
+       	 	ENDIF 
 			COPY TO &cFileName for gg = m_procfile(i,COL_SCONDITION)
 			
 			procefileinfo = SPACE(4)+'文件'+ STR(i,1,5) +' ' +mmdd +m_procfile(i,COL_DFILENAME)+ ' 从源目录：' + fname + ' 抽取数据到目标目录：' + cFileName +  '  成功' + NEWLINE
@@ -313,27 +331,28 @@ FOR i = 1 TO proclen IN m_procfile
 			IF CTROLWIN = 1
 				@i+40,10 say procefileinfo 
 			ENDIF 
-	ELSE
+		ELSE
 			proceinfoerr = SPACE(4)+'文件'+ STR(i,1,5) + ' '+mmdd +m_procfile(i,COL_DFILENAME) +' 从源目录：' + fname + ' 抽取数据到目标目录：' + cFileName + '  失败，源文件不存在' + NEWLINE
 			STRTOFILE(proceinfoerr ,m_rpfilename ,1)
 	    	IF CTROLWIN = 1
 				@i+40,10 say proceinfoerr 
 			ENDIF 
-	ENDIF 
+		ENDIF 
+		CLOSE TABLES
+	ENDFOR 
 	CLOSE TABLES
-ENDFOR 
-CLOSE TABLES
-STRTOFILE(NEWLINE ,m_rpfilename,1)
-STRTOFILE(SPACE(2)+"////////////////////////****************执行数据筛选结束******************////////////////////////"+NEWLINE ,m_rpfilename,1)
+	STRTOFILE(NEWLINE ,m_rpfilename,1)
+	STRTOFILE(SPACE(2)+"////////////////////////****************执行数据筛选结束******************////////////////////////"+NEWLINE ,m_rpfilename,1)
+ENDIF 
 **********************执行数据筛选END*********************
 
 *打开调试模式
-FUNCTION PrgDebug
+PROCEDURE PrgDebug
 	LPARAMETERS mTextinfo, mContexts, mDebugmode
 	IF mDebugmode = 0
 	   ?mTextinfo 
 	   ?mContexts 
 	ENDIF 
-ENDFUNC 
+ENDPROC
 
 
